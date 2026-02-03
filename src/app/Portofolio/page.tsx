@@ -6,7 +6,7 @@ import {
   Calendar, Globe, FileText, Award, Link, Upload,
   Download, Edit, Printer, Share2, Mail as MailIcon
 } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'

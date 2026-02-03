@@ -6,7 +6,7 @@ import data from "@/data.json"
 import { useMemo } from 'react'
 import Link from 'next/link'
 import { ChevronLeft, Building2, Filter, Download, Share2 } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts'
 
