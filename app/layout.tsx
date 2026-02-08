@@ -20,8 +20,11 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Your Application",
-  description: "Your application description",
+  title: {
+    default: "TheYoko. | Automotive Kaizen",
+    template: "%s | TheYoko",
+  },
+  description: "TheYoko. | Automotive Kaizen",
 };
 
 export default function RootLayout({
