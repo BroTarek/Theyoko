@@ -21,28 +21,32 @@ import { Badge } from "@/components/ui/badge";
 
 // Arab countries data with names and codes
 const ARAB_COUNTRIES = [
+  { code: "SY", name: "Syria", dial_code: "+963" },
+  { code: "YE", name: "Yemen", dial_code: "+967" },
+  { code: "PS", name: "Palestine", dial_code: "+970" },
+  { code: "LY", name: "Libya", dial_code: "+218" },
+  { code: "JO", name: "Jordan", dial_code: "+962" },
+  { code: "NA", name: "North Africa", dial_code: "000" },
+  { code: "IQ", name: "Iraq", dial_code: "+964" },
+  { code: "LB", name: "Lebanon", dial_code: "+961" },
+  { code: "GCC", name: "GCC", dial_code: "000" },
+
+  /**
   { code: "SA", name: "Saudi Arabia", dial_code: "+966" },
   { code: "AE", name: "United Arab Emirates", dial_code: "+971" },
   { code: "EG", name: "Egypt", dial_code: "+20" },
-  { code: "IQ", name: "Iraq", dial_code: "+964" },
-  { code: "JO", name: "Jordan", dial_code: "+962" },
-  { code: "LB", name: "Lebanon", dial_code: "+961" },
   { code: "KW", name: "Kuwait", dial_code: "+965" },
   { code: "QA", name: "Qatar", dial_code: "+974" },
   { code: "BH", name: "Bahrain", dial_code: "+973" },
   { code: "OM", name: "Oman", dial_code: "+968" },
-  { code: "SY", name: "Syria", dial_code: "+963" },
-  { code: "YE", name: "Yemen", dial_code: "+967" },
-  { code: "PS", name: "Palestine", dial_code: "+970" },
   { code: "MA", name: "Morocco", dial_code: "+212" },
   { code: "DZ", name: "Algeria", dial_code: "+213" },
   { code: "TN", name: "Tunisia", dial_code: "+216" },
-  { code: "LY", name: "Libya", dial_code: "+218" },
   { code: "SD", name: "Sudan", dial_code: "+249" },
   { code: "SO", name: "Somalia", dial_code: "+252" },
   { code: "MR", name: "Mauritania", dial_code: "+222" },
   { code: "DJ", name: "Djibouti", dial_code: "+253" },
-  { code: "KM", name: "Comoros", dial_code: "+269" },
+  { code: "KM", name: "Comoros", dial_code: "+269" }, */
 ];
 
 interface CountrySelectProps {

@@ -21,11 +21,11 @@ import {
 import { Input } from "@/components/ui/input";
 
 // Sales-related positions data
-const SALES_POSITIONS = [
+const POSITIONS = [
     "General Management",
     "C-Level",
     "Director",
-    "Department"," Manager",
+    "Department",
     "Manager", 
     "Sales",
     "Marketing",
@@ -92,11 +92,11 @@ export function PositionSelect({
         setShowOtherInput(false);
     };
 
-    const filteredPositions = SALES_POSITIONS.filter((position) =>
+    const filteredPositions = POSITIONS.filter((position) =>
         position.toLowerCase().includes(search.toLowerCase())
     );
 
-    const hasExactMatch = SALES_POSITIONS.some(
+    const hasExactMatch = POSITIONS.some(
         (position) => position.toLowerCase() === search.toLowerCase()
     );
 

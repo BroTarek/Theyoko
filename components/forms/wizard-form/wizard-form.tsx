@@ -5,7 +5,6 @@ import { WizardHeader } from './wizard-header';
 import { WizardProgress } from './wizard-progress';
 import { WizardNavigation } from './wizard-navigation';
 import { BasicInfoStep } from './steps/basic-info-step';
-import { AccountSetupStep } from './steps/account-setup-step';
 import { ExperienceStep } from './steps/experience-step';
 import { AboutMeStep } from './steps/about-me-step';
 import { DocumentsStep } from './steps/documents-step';
@@ -62,8 +61,6 @@ export function WizardForm() {
                     />
                 );
             case 2:
-                return <AccountSetupStep />;
-            case 3:
                 return (
                     <ExperienceStep
                         selectedExperience={selectedExperience}
@@ -72,7 +69,7 @@ export function WizardForm() {
                         setSelectedFields={setSelectedFields}
                     />
                 );
-            case 4:
+            case 3:
                 return (
                     <AboutMeStep
                         selectedPosition={selectedPosition}
@@ -83,9 +80,9 @@ export function WizardForm() {
                         setSelectedCountries={setSelectedCountries}
                     />
                 );
-            case 5:
+            case 4:
                 return <DocumentsStep />;
-            case 6:
+            case 5:
                 return <ReviewStep />;
             default:
                 return null;

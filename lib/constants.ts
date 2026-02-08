@@ -3,11 +3,10 @@ import { StepConfig, CountryCode } from '@/types';
 // Wizard Steps Configuration
 export const WIZARD_STEPS: StepConfig[] = [
     { id: 1, title: 'Basic Info', description: 'Your personal details' },
-    { id: 2, title: 'Account Setup', description: 'Create your account' },
-    { id: 3, title: 'Experience', description: 'Your background' },
-    { id: 4, title: 'About Me', description: 'General Information' },
-    { id: 5, title: 'Documents', description: 'Upload files' },
-    { id: 6, title: 'Review', description: 'Confirm details' },
+    { id: 2, title: 'Experience', description: 'Your background' },
+    { id: 3, title: 'About Me', description: 'General Information' },
+    { id: 4, title: 'Documents', description: 'Upload files' },
+    { id: 5, title: 'Review', description: 'Confirm details' },
 ];
 
 // Country Codes for Phone Selection

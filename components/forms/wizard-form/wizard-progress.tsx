@@ -17,7 +17,7 @@ export function WizardProgress({
     return (
         <div className="relative">
             {/* Progress Line Layer */}
-            <div className="absolute top-5 left-0 w-full h-1 flex px-[8.33%] z-0">
+            <div className="absolute top-5 left-0 w-full h-1 flex px-[10%] z-0">
                 <div className="w-full flex">
                     {steps.slice(0, -1).map((step) => (
                         <div
@@ -31,7 +31,7 @@ export function WizardProgress({
 
             {/* Buttons and Labels Layer */}
             <div className="relative z-10">
-                <div className="grid grid-cols-6 gap-2">
+                <div className="grid grid-cols-5 gap-2">
                     {steps.map((step) => {
                         const isCompleted = currentStep > step.id;
                         const isCurrent = currentStep === step.id;
@@ -42,10 +42,10 @@ export function WizardProgress({
                                 <button
                                     onClick={() => onStepClick(step.id)}
                                     className={`relative w-10 h-10 rounded-full font-semibold text-sm transition-all mb-3 ${isCompleted
-                                            ? 'bg-kaizen-red text-white shadow-lg'
-                                            : isCurrent
-                                                ? 'bg-kaizen-red text-white shadow-lg ring-4 ring-kaizen-red/30'
-                                                : 'bg-white text-muted-foreground border-2 border-secondary-grey'
+                                        ? 'bg-kaizen-red text-white shadow-lg'
+                                        : isCurrent
+                                            ? 'bg-kaizen-red text-white shadow-lg ring-4 ring-kaizen-red/30'
+                                            : 'bg-white text-muted-foreground border-2 border-secondary-grey'
                                         }`}
                                     aria-label={`Step ${step.id}: ${step.title}`}
                                     aria-current={isCurrent ? 'step' : undefined}

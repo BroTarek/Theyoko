@@ -160,6 +160,7 @@ const COUNTRIES = [
   { code: "MK", name: "North Macedonia", dial_code: "+389" },
   { code: "NO", name: "Norway", dial_code: "+47" },
   { code: "PL", name: "Poland", dial_code: "+48" },
+  
   { code: "PT", name: "Portugal", dial_code: "+351" },
   { code: "RO", name: "Romania", dial_code: "+40" },
   { code: "SM", name: "San Marino", dial_code: "+378" },
