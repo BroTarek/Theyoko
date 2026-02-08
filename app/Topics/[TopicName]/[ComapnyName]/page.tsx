@@ -1,6 +1,6 @@
 "use client"
 import { useParams } from 'next/navigation'
-import { DataTable, schema } from '@/components/data-table'
+import { DataTable, schema } from '@/components/data-tables/data-table'
 import { z } from "zod"
 import data from "@/data.json"
 import { useMemo } from 'react'
