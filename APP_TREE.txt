@@ -1,0 +1,22 @@
+﻿Folder PATH listing for volume DATA
+Volume serial number is 244B-CCA8
+D:\MODERN-UI\APP
+|   globals.css
+|   layout.tsx
+|   page.tsx
+|   
++---dashboard
+|       page.tsx
+|       
++---Portofolio
+|       page.tsx
+|       
+\---Topics
+    |   page.tsx
+    |   
+    \---[TopicName]
+        |   page.tsx
+        |   
+        \---[ComapnyName]
+                page.tsx
+                
