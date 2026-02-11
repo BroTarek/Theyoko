@@ -16,18 +16,21 @@ export function WizardForm() {
     const [currentStep, setCurrentStep] = useState(1);
 
     // Form state - Basic Info
+    const [fullName, setFullName] = useState('');
+    const [email, setEmail] = useState('');
     const [referralSource, setReferralSource] = useState<string>('');
     const [countryCode, setCountryCode] = useState('+966');
     const [phoneNumber, setPhoneNumber] = useState('');
 
     // Form state - Experience
     const [selectedExperience, setSelectedExperience] = useState<string>('');
-    const [selectedFields, setSelectedFields] = useState<string[]>(['']);
+    const [selectedFields, setSelectedFields] = useState<string[]>([]);
 
     // Form state - About Me
     const [selectedPosition, setSelectedPosition] = useState<string>('');
     const [company, setCompany] = useState('');
     const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+    const [achievements, setAchievements] = useState('');
 
     // Navigation handlers
     const handleNext = () => {
@@ -42,6 +45,43 @@ export function WizardForm() {
         }
     };
 
+    const handleComplete = async () => {
+        const formData = {
+            full_name: fullName,
+            email: email,
+            phone_number: `${countryCode}${phoneNumber}`,
+            referral_source: referralSource,
+            experience_level: selectedExperience,
+            fields: selectedFields,
+            position: selectedPosition,
+            company: company,
+            countries_worked_in: selectedCountries,
+            achievements: achievements,
+            // documents: [] // We can handle documents later if needed
+        };
+
+        try {
+            const response = await fetch('http://localhost:5000/api/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert('Form submitted successfully! ID: ' + result.id);
+                // Optionally reset form or redirect
+            } else {
+                alert('Failed to submit form.');
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            alert('An error occurred during submission.');
+        }
+    };
+
     const handleStepClick = (stepId: number) => {
         setCurrentStep(stepId);
     };
@@ -52,6 +92,10 @@ export function WizardForm() {
             case 1:
                 return (
                     <BasicInfoStep
+                        fullName={fullName}
+                        setFullName={setFullName}
+                        email={email}
+                        setEmail={setEmail}
                         referralSource={referralSource}
                         setReferralSource={setReferralSource}
                         countryCode={countryCode}
@@ -78,12 +122,25 @@ export function WizardForm() {
                         setCompany={setCompany}
                         selectedCountries={selectedCountries}
                         setSelectedCountries={setSelectedCountries}
+                        achievements={achievements}
+                        setAchievements={setAchievements}
                     />
                 );
             case 4:
                 return <DocumentsStep />;
             case 5:
-                return <ReviewStep />;
+                return (
+                    <ReviewStep
+                        data={{
+                            fullName,
+                            email,
+                            experience: selectedExperience,
+                            countries: selectedCountries,
+                            position: selectedPosition,
+                            company,
+                        }}
+                    />
+                );
             default:
                 return null;
         }
@@ -117,6 +174,7 @@ export function WizardForm() {
                         totalSteps={WIZARD_STEPS.length}
                         onNext={handleNext}
                         onPrevious={handlePrevious}
+                        onComplete={handleComplete}
                     />
                 </div>
             </div>

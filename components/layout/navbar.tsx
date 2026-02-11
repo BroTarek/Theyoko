@@ -27,8 +27,18 @@ const routes = [
         icon: LayoutDashboard,
     },
     {
-        name: "Topics",
+        name: "Companies",
         path: "/Topics",
+        icon: LayoutDashboard,
+    },
+    {
+        name: "Archive: Applicants",
+        path: "/Archive/Applicants",
+        icon: ClipboardList,
+    },
+    {
+        name: "Archive: Companies",
+        path: "/Archive/Companies",
         icon: LayoutDashboard,
     }
 ]

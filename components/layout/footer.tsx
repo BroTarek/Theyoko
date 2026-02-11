@@ -36,9 +36,13 @@ const Footer = () => {
                                     type="email"
                                     placeholder="Your e-mail address"
                                     className="w-full bg-black/30 border border-white/5 rounded-full py-3 px-6 text-sm focus:outline-none focus:ring-1 focus:ring-kaizen-red/50 transition-all placeholder:text-secondary-grey/60"
+                                    suppressHydrationWarning
                                 />
                             </div>
-                            <button className="bg-transparent border border-white/20 hover:border-white/40 hover:bg-white/10 transition-all rounded-full p-3 group">
+                            <button
+                                className="bg-transparent border border-white/20 hover:border-white/40 hover:bg-white/10 transition-all rounded-full p-3 group"
+                                suppressHydrationWarning
+                            >
                                 <ArrowRight className="w-5 h-5 text-white transition-transform group-hover:translate-x-0.5" />
                             </button>
                         </div>

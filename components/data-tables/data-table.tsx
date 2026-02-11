@@ -145,13 +145,15 @@ const COUNTRIES: Country[] = [
     { code: "MR", name: "Mauritania" },
     { code: "DJ", name: "Djibouti" },
     { code: "KM", name: "Comoros" },
+    { code: "GCC", name: "GCC" },
+    { code: "NA", name: "North Africa" },
 ]
 
 // Update the schema to use country codes
 export const schema = z.object({
     id: z.number(),
     header: z.string(),
-    field: z.enum(["Sales", "Marketing", "Management", "IT", "Law", "Engineering"]),
+    field: z.string(),
     status: z.enum(["Unseen", "Seen", "Reviwed", "Selected", "In Process", "Done"]),
     experience: z.string(),
     countries: z.array(z.string()), // Array of country codes
@@ -340,180 +342,6 @@ function DragHandle({ id }: { id: number }) {
     )
 }
 
-const columns: ColumnDef<z.infer<typeof schema>>[] = [
-    {
-        id: "drag",
-        header: () => null,
-        cell: ({ row }) => <DragHandle id={row.original.id} />,
-    },
-    {
-        id: "select",
-        header: ({ table }) => (
-            <div className="flex items-center justify-center">
-                <Checkbox
-                    checked={
-                        table.getIsAllPageRowsSelected() ||
-                        (table.getIsSomePageRowsSelected() && "indeterminate")
-                    }
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                    aria-label="Select all"
-                />
-            </div>
-        ),
-        cell: ({ row }) => (
-            <div className="flex items-center justify-center">
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
-                />
-            </div>
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
-    {
-        accessorKey: "header",
-        header: "Header",
-        cell: ({ row }) => {
-            return <TableCellViewer item={row.original} />
-        },
-        enableHiding: false,
-    },
-    {
-        accessorKey: "field",
-        header: "Field",
-        cell: ({ row }) => {
-            const field = row.original.field
-            const config = FIELD_CONFIG[field as keyof typeof FIELD_CONFIG]
-
-            if (!config) {
-                return (
-                    <div className="w-32">
-                        <Badge variant="outline" className="px-2">
-                            {field}
-                        </Badge>
-                    </div>
-                )
-            }
-
-            const Icon = config.icon
-
-            return (
-                <div className="w-32">
-                    <Badge
-                        variant="outline"
-                        className={`px-2 ${config.color}`}
-                    >
-                        <Icon className={`size-3 mr-1 ${config.iconColor}`} />
-                        {field}
-                    </Badge>
-                </div>
-            )
-        },
-    },
-    {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row }) => {
-            const status = row.original.status
-            const config = STATUS_CONFIG[status]
-            const Icon = config.icon
-
-            return (
-                <Badge
-                    variant="outline"
-                    className={`px-2 ${config.color}`}
-                >
-                    <Icon className={`size-3 mr-1 ${config.iconColor}`} />
-                    {status}
-                </Badge>
-            )
-        },
-    },
-    {
-        accessorKey: "experience",
-        header: () => <div className="w-full text-right">Experience</div>,
-        cell: ({ row }) => (
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault()
-                    toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-                        loading: `Saving ${row.original.header}`,
-                        success: "Done",
-                        error: "Error",
-                    })
-                }}
-            >
-                <Label htmlFor={`${row.original.id}-experience`} className="sr-only">
-                    Experience
-                </Label>
-                <Input
-                    className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
-                    defaultValue={row.original.experience}
-                    id={`${row.original.id}-experience`}
-                />
-            </form>
-        ),
-    },
-    {
-        accessorKey: "countries",
-        header: "Countries",
-        cell: ({ row }) => {
-            const handleCountryChange = (newCountries: string[]) => {
-                toast.promise(
-                    new Promise((resolve) => {
-                        setTimeout(() => {
-                            resolve(true)
-                        }, 500)
-                    }),
-                    {
-                        loading: `Updating countries for ${row.original.header}`,
-                        success: "Countries updated successfully",
-                        error: "Failed to update countries",
-                    }
-                )
-            }
-
-            return (
-                <div className="min-w-[200px]">
-                    <Label htmlFor={`${row.original.id}-countries`} className="sr-only">
-                        Countries
-                    </Label>
-                    <CountrySelect
-                        value={row.original.countries}
-                        onChange={handleCountryChange}
-                        id={`${row.original.id}-countries`}
-                    />
-                </div>
-            )
-        },
-    },
-    {
-        id: "actions",
-        cell: () => (
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                        size="icon"
-                    >
-                        <IconDotsVertical />
-                        <span className="sr-only">Open menu</span>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-32">
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Make a copy</DropdownMenuItem>
-                    <DropdownMenuItem>Favorite</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        ),
-    },
-]
 
 function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
     const { transform, transition, setNodeRef, isDragging } = useSortable({
@@ -542,8 +370,14 @@ function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
 
 export function DataTable({
     data: initialData,
+    onDelete,
+    onArchive,
+    isArchivePage = false,
 }: {
-    data: z.infer<typeof schema>[]
+    data: z.infer<typeof schema>[],
+    onDelete?: (id: number) => Promise<boolean>,
+    onArchive?: (id: number) => Promise<boolean>,
+    isArchivePage?: boolean
 }) {
     const [data, setData] = React.useState(() => initialData)
     const [rowSelection, setRowSelection] = React.useState({})
@@ -552,9 +386,9 @@ export function DataTable({
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
         []
     )
-    
-      const [selectedExperience, setSelectedExperience] = React.useState<string>('');
-      
+
+    const [selectedExperience, setSelectedExperience] = React.useState<string>('');
+
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [pagination, setPagination] = React.useState({
         pageIndex: 0,
@@ -568,6 +402,229 @@ export function DataTable({
         useSensor(TouchSensor, {}),
         useSensor(KeyboardSensor, {})
     )
+    const handleDelete = async (id: number) => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/submissions/${id}`, {
+                method: 'DELETE',
+            })
+            if (res.ok) {
+                setData(prev => prev.filter(item => item.id !== id))
+                toast.success("Applicant deleted successfully")
+                if (onDelete) await onDelete(id)
+                return true
+            }
+            return false
+        } catch (error) {
+            console.error("Failed to delete applicant:", error)
+            toast.error("Failed to delete applicant")
+            return false
+        }
+    }
+
+    const handleArchive = async (id: number) => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/submissions/${id}/archive`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ archive: !isArchivePage })
+            })
+            if (res.ok) {
+                setData(prev => prev.filter(item => item.id !== id))
+                toast.success(`Applicant ${isArchivePage ? 'unarchived' : 'archived'} successfully`)
+                if (onArchive) await onArchive(id)
+                return true
+            }
+            return false
+        } catch (error) {
+            console.error("Failed to archive applicant:", error)
+            toast.error("Failed to archive applicant")
+            return false
+        }
+    }
+
+    // Move columns inside the component to access onDelete
+    const columns = React.useMemo<ColumnDef<z.infer<typeof schema>>[]>(() => [
+        {
+            id: "drag",
+            header: () => null,
+            cell: ({ row }) => <DragHandle id={row.original.id} />,
+        },
+        {
+            id: "select",
+            header: ({ table }) => (
+                <div className="flex items-center justify-center">
+                    <Checkbox
+                        checked={
+                            table.getIsAllPageRowsSelected() ||
+                            (table.getIsSomePageRowsSelected() && "indeterminate")
+                        }
+                        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                        aria-label="Select all"
+                    />
+                </div>
+            ),
+            cell: ({ row }) => (
+                <div className="flex items-center justify-center">
+                    <Checkbox
+                        checked={row.getIsSelected()}
+                        onCheckedChange={(value) => row.toggleSelected(!!value)}
+                        aria-label="Select row"
+                    />
+                </div>
+            ),
+            enableSorting: false,
+            enableHiding: false,
+        },
+        {
+            accessorKey: "header",
+            header: "Header",
+            cell: ({ row }) => {
+                return <TableCellViewer item={row.original} />
+            },
+            enableHiding: false,
+        },
+        {
+            accessorKey: "field",
+            header: "Field",
+            cell: ({ row }) => {
+                const field = row.original.field
+                const config = FIELD_CONFIG[field as keyof typeof FIELD_CONFIG]
+
+                if (!config) {
+                    return (
+                        <div className="w-32">
+                            <Badge variant="outline" className="px-2">
+                                {field}
+                            </Badge>
+                        </div>
+                    )
+                }
+
+                const Icon = config.icon
+
+                return (
+                    <div className="w-32">
+                        <Badge
+                            variant="outline"
+                            className={`px-2 ${config.color}`}
+                        >
+                            <Icon className={`size-3 mr-1 ${config.iconColor}`} />
+                            {field}
+                        </Badge>
+                    </div>
+                )
+            },
+        },
+        {
+            accessorKey: "status",
+            header: "Status",
+            cell: ({ row }) => {
+                const status = row.original.status
+                const config = STATUS_CONFIG[status]
+                const Icon = config.icon
+
+                return (
+                    <Badge
+                        variant="outline"
+                        className={`px-2 ${config.color}`}
+                    >
+                        <Icon className={`size-3 mr-1 ${config.iconColor}`} />
+                        {status}
+                    </Badge>
+                )
+            },
+        },
+        {
+            accessorKey: "experience",
+            header: () => <div className="w-full text-right">Experience</div>,
+            cell: ({ row }) => (
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
+                            loading: `Saving ${row.original.header}`,
+                            success: "Done",
+                            error: "Error",
+                        })
+                    }}
+                >
+                    <Label htmlFor={`${row.original.id}-experience`} className="sr-only">
+                        Experience
+                    </Label>
+                    <Input
+                        className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
+                        defaultValue={row.original.experience}
+                        id={`${row.original.id}-experience`}
+                    />
+                </form>
+            ),
+        },
+        {
+            accessorKey: "countries",
+            header: "Countries",
+            cell: ({ row }) => {
+                const handleCountryChange = (newCountries: string[]) => {
+                    toast.promise(
+                        new Promise((resolve) => {
+                            setTimeout(() => {
+                                resolve(true)
+                            }, 500)
+                        }),
+                        {
+                            loading: `Updating countries for ${row.original.header}`,
+                            success: "Countries updated successfully",
+                            error: "Failed to update countries",
+                        }
+                    )
+                }
+
+                return (
+                    <div className="min-w-[200px]">
+                        <Label htmlFor={`${row.original.id}-countries`} className="sr-only">
+                            Countries
+                        </Label>
+                        <CountrySelect
+                            value={row.original.countries}
+                            onChange={handleCountryChange}
+                            id={`${row.original.id}-countries`}
+                        />
+                    </div>
+                )
+            },
+        },
+        {
+            id: "actions",
+            cell: ({ row }) => (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+                            size="icon"
+                        >
+                            <IconDotsVertical />
+                            <span className="sr-only">Open menu</span>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-32">
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem>Make a copy</DropdownMenuItem>
+                        <DropdownMenuItem>Favorite</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleArchive(row.original.id)}>
+                            {isArchivePage ? 'Unarchive' : 'Archive'}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => handleDelete(row.original.id)}
+                        >
+                            Delete
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ),
+        },
+    ], [onDelete])
 
     // Filter data based on selected field
     const filteredData = React.useMemo(() => {
@@ -581,6 +638,11 @@ export function DataTable({
         () => filteredData?.map(({ id }) => id) || [],
         [filteredData]
     )
+
+    // Update internal data when initialData changes
+    React.useEffect(() => {
+        setData(initialData)
+    }, [initialData])
 
     const table = useReactTable({
         data: filteredData,
@@ -620,7 +682,7 @@ export function DataTable({
 
     // Get unique fields for filter dropdown
     const uniqueFields = React.useMemo(() => {
-        const fields = Array.from(new Set(data.map(item => item.field)))
+        const fields = Array.from(new Set(data.map(item => item.field))).filter(Boolean)
         return fields.sort()
     }, [data])
 
@@ -665,48 +727,48 @@ export function DataTable({
                     <Label htmlFor="view-selector" className="sr-only">
                         View
                     </Label>
-                    
-              <Select value={selectedExperience} onValueChange={setSelectedExperience}>
-                <SelectTrigger className="w-full h-[50px] px-4 rounded-lg border border-gray-300 bg-white text-primary-text 
+
+                    <Select value={selectedExperience} onValueChange={setSelectedExperience}>
+                        <SelectTrigger className="w-full h-[50px] px-4 rounded-lg border border-gray-300 bg-white text-primary-text 
             focus:ring-2 focus:ring-kaizen-red/20 focus:border-kaizen-red
             hover:border-kaizen-red/60 transition-all duration-200
             data-[state=open]:border-kaizen-red data-[state=open]:ring-2 data-[state=open]:ring-kaizen-red/20">
-                  <SelectValue placeholder="Select experience level" />
-                </SelectTrigger>
-                <SelectContent className="rounded-lg border border-gray-200 bg-white shadow-lg py-1 
+                            <SelectValue placeholder="Select experience level" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-lg border border-gray-200 bg-white shadow-lg py-1 
             animate-in fade-in-80 zoom-in-95">
-                  <SelectItem
-                    value="0-5"
-                    className="py-2.5 px-3 rounded-md cursor-pointer transition-colors duration-150
+                            <SelectItem
+                                value="0-5"
+                                className="py-2.5 px-3 rounded-md cursor-pointer transition-colors duration-150
                 hover:bg-red-50 hover:text-kaizen-red
                 focus:bg-red-50 focus:text-kaizen-red
                 data-[state=checked]:bg-red-50 data-[state=checked]:text-kaizen-red
                 data-[state=checked]:font-medium"
-                  >
-                    0-5 years
-                  </SelectItem>
-                  <SelectItem
-                    value="5-10"
-                    className="py-2.5 px-3 rounded-md cursor-pointer transition-colors duration-150
+                            >
+                                0-5 years
+                            </SelectItem>
+                            <SelectItem
+                                value="5-10"
+                                className="py-2.5 px-3 rounded-md cursor-pointer transition-colors duration-150
                 hover:bg-red-50 hover:text-kaizen-red
                 focus:bg-red-50 focus:text-kaizen-red
                 data-[state=checked]:bg-red-50 data-[state=checked]:text-kaizen-red
                 data-[state=checked]:font-medium"
-                  >
-                    5-10 years
-                  </SelectItem>
-                  <SelectItem
-                    value="10+"
-                    className="py-2.5 px-3 rounded-md cursor-pointer transition-colors duration-150
+                            >
+                                5-10 years
+                            </SelectItem>
+                            <SelectItem
+                                value="10+"
+                                className="py-2.5 px-3 rounded-md cursor-pointer transition-colors duration-150
                 hover:bg-red-50 hover:text-kaizen-red
                 focus:bg-red-50 focus:text-kaizen-red
                 data-[state=checked]:bg-red-50 data-[state=checked]:text-kaizen-red
                 data-[state=checked]:font-medium"
-                  >
-                    10+ years
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                            >
+                                10+ years
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
@@ -755,7 +817,7 @@ export function DataTable({
                                 })}
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    
+
                 </div>
             </div>
             <TabsContent
@@ -1061,7 +1123,7 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
                     </form>
                 </div>
                 <DrawerFooter>
-                    <Link href={'/Portofolio'}>
+                    <Link href={`/Portofolio?id=${item.id}`}>
                         <Button>
                             Visit Page
                         </Button>

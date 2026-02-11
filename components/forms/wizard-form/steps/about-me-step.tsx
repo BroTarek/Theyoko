@@ -12,6 +12,8 @@ interface AboutMeStepProps {
     setCompany: (value: string) => void;
     selectedCountries: string[];
     setSelectedCountries: (value: string[]) => void;
+    achievements: string;
+    setAchievements: (value: string) => void;
 }
 
 export function AboutMeStep({
@@ -21,6 +23,8 @@ export function AboutMeStep({
     setCompany,
     selectedCountries,
     setSelectedCountries,
+    achievements,
+    setAchievements,
 }: AboutMeStepProps) {
     return (
         <div className="space-y-6">
@@ -90,7 +94,11 @@ export function AboutMeStep({
                 >
                     Share Your Achievements, Projects, Experience here
                 </label>
-                <Textarea id={FORM_FIELD_IDS.ACHIEVEMENTS} />
+                <Textarea
+                    id={FORM_FIELD_IDS.ACHIEVEMENTS}
+                    value={achievements}
+                    onChange={(e) => setAchievements(e.target.value)}
+                />
             </div>
         </div>
     );

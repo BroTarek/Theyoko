@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { 
-  User, Mail, Phone, MapPin, Briefcase, Building, 
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
+import {
+  User, Mail, Phone, MapPin, Briefcase, Building,
   Calendar, Globe, FileText, Award, Link, Upload,
   Download, Edit, Printer, Share2, Mail as MailIcon
 } from 'lucide-react'
@@ -15,85 +16,126 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label'
 import { IconCircleCheck, IconCircleCheckFilled, IconCircleDot, IconLoader } from '@tabler/icons-react'
 
-
-
-
-// Mock data - in a real app, this would come from your form state or API
-const mockFormData = {
-  // Step 1: Basic Info
-  personal: {
-    fullName: "Ali Tarek",
-    email: "ali@gmail.com",
-    referralSource: "LinkedIn",
-    phoneNumber: "+9661551172132",
-  },
-  
-  // Step 3: Experience
-  experience: {
-    yearsOfExperience: "5-10 years",
-    selectedFields: ["Marketing"],
-    positionApplied: "Marketing Manager",
-    lastCompany: "Tech Corp",
-    countriesWorked: ["Jordan", "Yemen", "Egypt", "Saudi Arabia"],
-    achievements: "Led a team of 10 marketing specialists to increase company revenue by 40% through strategic digital campaigns. Successfully managed multiple international projects across MENA region. Implemented new marketing automation systems that reduced manual work by 60%."
-  },
-  
-  // Step 5: Documents
-  documents: [
-    { name: "Resume_Ali_Tarek.pdf", type: "Resume / CV", size: "2.4 MB" },
-    { name: "Cover_Letter_Ali_Tarek.pdf", type: "Cover Letter", size: "1.1 MB" },
-    { name: "Marketing_Certificate.pdf", type: "Certifications", size: "3.2 MB" },
-  ],
-  
-  // Additional computed fields
-  metadata: {
-    applicationDate: "2024-01-15",
-    applicationId: "APP-2024-0015",
-    status: "Under Review",
-    lastUpdated: "2024-01-16"
-  }
-}
 const STATUS_CONFIG = {
-    Unseen: {
-        color: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-800",
-        icon: IconCircleDot,
-        iconColor: "text-gray-500 dark:text-gray-400"
-    },
-    Seen: {
-        color: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800",
-        icon: IconCircleDot,
-        iconColor: "text-blue-500 dark:text-blue-400"
-    },
-    Reviwed: {
-        color: "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800",
-        icon: IconCircleCheck,
-        iconColor: "text-purple-500 dark:text-purple-400"
-    },
-    Selected: {
-        color: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-800",
-        icon: IconCircleCheckFilled,
-        iconColor: "text-green-500 dark:text-green-400"
-    },
-    "In Process": {
-        color: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800",
-        icon: IconLoader,
-        iconColor: "text-yellow-600 dark:text-yellow-400"
-    },
-    Done: {
-        color: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800",
-        icon: IconCircleCheckFilled,
-        iconColor: "text-green-500 dark:text-green-400"
-    }
+  Unseen: {
+    color: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-800",
+    icon: IconCircleDot,
+    iconColor: "text-gray-500 dark:text-gray-400"
+  },
+  Seen: {
+    color: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800",
+    icon: IconCircleDot,
+    iconColor: "text-blue-500 dark:text-blue-400"
+  },
+  Reviwed: {
+    color: "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800",
+    icon: IconCircleCheck,
+    iconColor: "text-purple-500 dark:text-purple-400"
+  },
+  Selected: {
+    color: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-800",
+    icon: IconCircleCheckFilled,
+    iconColor: "text-green-500 dark:text-green-400"
+  },
+  "In Process": {
+    color: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800",
+    icon: IconLoader,
+    iconColor: "text-yellow-600 dark:text-yellow-400"
+  },
+  Done: {
+    color: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800",
+    icon: IconCircleCheckFilled,
+    iconColor: "text-green-500 dark:text-green-400"
+  }
 } as const
+
 export default function PortfolioPage() {
-  const [formData, setFormData] = useState(mockFormData)
+  const searchParams = useSearchParams()
+  const id = searchParams.get('id')
+
+  const [formData, setFormData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("overview")
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!id) {
+        setLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch(`http://localhost:5000/api/submissions/${id}`)
+        if (!response.ok) throw new Error('Failed to fetch')
+        const data = await response.json()
+
+        // Map backend data to the structure used by this page
+        const mappedData = {
+          personal: {
+            fullName: data.full_name,
+            email: data.email,
+            referralSource: data.referral_source,
+            phoneNumber: data.phone_number,
+          },
+          experience: {
+            yearsOfExperience: data.experience_level,
+            selectedFields: data.fields || [],
+            positionApplied: data.position,
+            lastCompany: data.company,
+            countriesWorked: data.countries_worked_in || [],
+            achievements: data.achievements
+          },
+          documents: data.documents?.map((doc: any) => ({
+            name: doc.file_name,
+            type: doc.document_type,
+            size: "N/A" // Size not stored in DB yet
+          })) || [],
+          metadata: {
+            applicationDate: new Date(data.created_at).toLocaleDateString(),
+            applicationId: `APP-${data.id.toString().padStart(4, '0')}`,
+            status: data.status || "Unseen",
+            lastUpdated: new Date(data.created_at).toLocaleDateString() // Assuming same for now
+          }
+        }
+        setFormData(mappedData)
+      } catch (error) {
+        console.error("Error fetching portfolio:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [id])
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (!id) return
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/submissions/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      })
+
+      if (response.ok) {
+        setFormData((prev: any) => ({
+          ...prev,
+          metadata: { ...prev.metadata, status: newStatus }
+        }))
+      }
+    } catch (error) {
+      console.error("Failed to update status:", error)
+    }
+  }
+
+  if (loading) return <div className="p-10 text-center">Loading portfolio...</div>
+  if (!formData) return <div className="p-10 text-center">No portfolio data found. Please select an application from the dashboard.</div>
 
   // Format phone number for display
   const formatPhoneNumber = (phone: string) => {
-    const countryCode = phone.slice(0, 4)
-    const number = phone.slice(4)
-    return `${countryCode} ${number.match(/.{1,3}/g)?.join(' ') || number}`
+    if (!phone) return 'N/A'
+    return phone // Return as is for now, or add formatting logic
   }
 
   // Get country flag emoji
@@ -121,8 +163,10 @@ export default function PortfolioPage() {
       'MR': '🇲🇷',
       'DJ': '🇩🇯',
       'KM': '🇰🇲',
+      'GCC': '🌍',
+      'NA': '🌍',
     }
-    
+
     // Map country names to codes
     const countryMapping: Record<string, string> = {
       'Jordan': 'JO',
@@ -130,7 +174,7 @@ export default function PortfolioPage() {
       'Egypt': 'EG',
       'Saudi Arabia': 'SA',
     }
-    
+
     const code = countryMapping[countryCode] || countryCode
     return flags[code] || '🌍'
   }
@@ -138,13 +182,13 @@ export default function PortfolioPage() {
   const handlePrint = () => {
     window.print()
   }
-  const item={
+  const item = {
     header: "string",
     id: 123,
     status: "Unseen",
     experience: "string"
-   
-}
+
+  }
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -182,8 +226,8 @@ export default function PortfolioPage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2 mt-4 md:mt-0 print:hidden">
-              
-              
+
+
               <Button onClick={handleDownloadCV}>
                 <Download className="w-4 h-4 mr-2" />
                 Download CV
@@ -197,7 +241,7 @@ export default function PortfolioPage() {
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-r from-kaizen-red to-orange-500 flex items-center justify-center">
                   <span className="text-2xl text-white font-bold">
-                    {formData.personal.fullName.split(' ').map(n => n[0]).join('')}
+                    {formData.personal.fullName.split(' ').map((n: string) => n[0]).join('')}
                   </span>
                 </div>
                 <div>
@@ -209,30 +253,33 @@ export default function PortfolioPage() {
                 </div>
               </div>
               <div className="mt-4 md:mt-0">
-               
-               
-                            <div className="flex flex-col gap-3">
-                                <Label htmlFor="status">Status</Label>
-                                <Select defaultValue={item.status}>
-                                    <SelectTrigger id="status" className="w-full">
-                                        <SelectValue placeholder="Select a status" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {Object.keys(STATUS_CONFIG).map(status => {
-                                            const config = STATUS_CONFIG[status as keyof typeof STATUS_CONFIG]
-                                            const Icon = config.icon
-                                            return (
-                                                <SelectItem key={status} value={status}>
-                                                    <div className="flex items-center gap-2">
-                                                        <Icon className={`size-3 ${config.iconColor}`} />
-                                                        <span>{status}</span>
-                                                    </div>
-                                                </SelectItem>
-                                            )
-                                        })}
-                                    </SelectContent>
-                                </Select>
+
+
+                <div className="flex flex-col gap-3">
+                  <Label htmlFor="status">Status</Label>
+                  <Select
+                    value={formData.metadata.status}
+                    onValueChange={handleStatusChange}
+                  >
+                    <SelectTrigger id="status" className="w-full">
+                      <SelectValue placeholder="Select a status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.keys(STATUS_CONFIG).map((status: string) => {
+                        const config = STATUS_CONFIG[status as keyof typeof STATUS_CONFIG]
+                        const Icon = config.icon
+                        return (
+                          <SelectItem key={status} value={status}>
+                            <div className="flex items-center gap-2">
+                              <Icon className={`size-3 ${config.iconColor}`} />
+                              <span>{status}</span>
                             </div>
+                          </SelectItem>
+                        )
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <p className="text-sm text-gray-500 mt-2 text-right">
                   Last updated: {formData.metadata.lastUpdated}
                 </p>
@@ -317,7 +364,7 @@ export default function PortfolioPage() {
                       <div>
                         <p className="text-sm text-gray-500">Fields of Expertise</p>
                         <div className="flex flex-wrap gap-2 mt-1">
-                          {formData.experience.selectedFields.map((field, index) => (
+                          {formData.experience.selectedFields.map((field: string, index: number) => (
                             <Badge key={index} variant="secondary" className="bg-red-50 text-kaizen-red">
                               {field}
                             </Badge>
@@ -343,7 +390,7 @@ export default function PortfolioPage() {
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="flex flex-wrap gap-4">
-                  {formData.experience.countriesWorked.map((country, index) => (
+                  {formData.experience.countriesWorked.map((country: string, index: number) => (
                     <div key={index} className="flex items-center space-x-2 bg-gray-50 rounded-lg px-4 py-3">
                       <span className="text-2xl">{getCountryFlag(country)}</span>
                       <span className="font-medium">{country}</span>
@@ -408,7 +455,7 @@ export default function PortfolioPage() {
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Skills & Competencies</h3>
                     <div className="flex flex-wrap gap-2">
-                      {formData.experience.selectedFields.map((field, index) => (
+                      {formData.experience.selectedFields.map((field: string, index: number) => (
                         <Badge key={index} variant="outline" className="px-4 py-2 text-sm">
                           {field}
                         </Badge>
@@ -439,7 +486,7 @@ export default function PortfolioPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {formData.documents.map((doc, index) => (
+                  {formData.documents.map((doc: any, index: number) => (
                     <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                       <div className="flex items-center space-x-4">
                         <div className="w-12 h-12 rounded-lg bg-red-50 flex items-center justify-center">

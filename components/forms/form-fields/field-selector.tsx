@@ -1,10 +1,27 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { Search, Code2, Database, Wrench, Palette, Megaphone, TrendingUp } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search, Code2, Database, Wrench, Palette, Megaphone, TrendingUp, LayoutGrid, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+
+const STATIC_ICON_MAP: Record<string, React.ReactNode> = {
+  'IT': <Code2 className="w-6 h-6" />,
+  'Management': <Database className="w-6 h-6" />,
+  'Product': <Wrench className="w-6 h-6" />,
+  'Design': <Palette className="w-6 h-6" />,
+  'Marketing': <Megaphone className="w-6 h-6" />,
+  'Sales': <TrendingUp className="w-6 h-6" />,
+  'digital marketing': <Megaphone className="w-6 h-6" />,
+  'Finance': <TrendingUp className="w-6 h-6" />,
+  'HR': <Users className="w-6 h-6" />,
+  'Logistics': <Database className="w-6 h-6" />,
+  'Service': <Users className="w-6 h-6" />,
+  'CRM/CX': <Users className="w-6 h-6" />,
+  'Excutive': <Database className="w-6 h-6" />,
+  'Operations': <Wrench className="w-6 h-6" />,
+};
 
 interface Field {
   id: string;
@@ -14,57 +31,14 @@ interface Field {
   description: string;
 }
 
-const FIELDS: Field[] = [
-  {
-    id: 'IT',
-    name: 'IT',
-    category: 'IT',
-    icon: <Code2 className="w-6 h-6" />,
-    description: 'Build web applications, software, and digital products with code.',
-  },
-  {
-    id: 'Management',
-    name: 'Management',
-    category: 'Management',
-    icon: <Database className="w-6 h-6" />,
-    description: 'Transform information into insights and detailed analytics.',
-  },
-  {
-    id: 'product',
-    name: 'Products',
-    category: 'product',
-    icon: <Wrench className="w-6 h-6" />,
-    description: 'Lead strategy, roadmaps, and implementation.',
-  },
-  {
-    id: 'design',
-    name: 'Design',
-    category: 'design',
-    icon: <Palette className="w-6 h-6" />,
-    description: 'Design user interfaces and integrated visual experiences.',
-  },
-  {
-    id: 'marketing',
-    name: 'Marketing',
-    category: 'marketing',
-    icon: <Megaphone className="w-6 h-6" />,
-    description: 'Tell stories and drive audience growth.',
-  },
-  {
-    id: 'sales',
-    name: 'Sales',
-    category: 'sales',
-    icon: <TrendingUp className="w-6 h-6" />,
-    description: 'Build relationships and unlock new opportunities.',
-  },
-];
-
 interface FieldSelectorProps {
   selectedFields?: string[];
   onFieldsChange?: (fields: string[]) => void;
 }
 
 export function FieldSelector({ selectedFields: propSelectedFields, onFieldsChange }: FieldSelectorProps) {
+  const [fields, setFields] = useState<Field[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFields, setSelectedFields] = useState<string[]>(propSelectedFields || []);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -78,20 +52,43 @@ export function FieldSelector({ selectedFields: propSelectedFields, onFieldsChan
     onFieldsChange?.(newFields);
   };
 
+  const toggleCategory = (category: string) => {
+    setActiveCategory((prev) => (prev === category ? null : category));
+  };
+
+  useEffect(() => {
+    const fetchTopics = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/topics');
+        const data = await response.json();
+        const mappedFields: Field[] = data.map((topic: any) => ({
+          id: topic.name,
+          name: topic.name,
+          category: topic.name.split(' ')[0], // Simple heuristic
+          icon: STATIC_ICON_MAP[topic.name] || <LayoutGrid className="w-6 h-6" />,
+          description: `Specialized professional field: ${topic.name}`
+        }));
+        setFields(mappedFields);
+      } catch (error) {
+        console.error("Failed to fetch topics:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTopics();
+  }, []);
+
+  // Use fields from DB instead of static FIELDS
+  const categories = useMemo(() => [...new Set(fields.map(field => field.category))], [fields]);
+
   const filteredFields = useMemo(() => {
-    return FIELDS.filter((field) => {
+    return fields.filter((field) => {
       const matchesSearch = field.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         field.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = activeCategory ? field.category === activeCategory : true;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, activeCategory]);
-
-  const toggleCategory = (category: string) => {
-    setActiveCategory((prev) => (prev === category ? null : category));
-  };
-
-  const categories = [...new Set(FIELDS.map(field => field.category))];
+  }, [fields, searchQuery, activeCategory]);
 
   return (
     <div className="space-y-4">
@@ -100,7 +97,7 @@ export function FieldSelector({ selectedFields: propSelectedFields, onFieldsChan
         <label className="block font-medium mb-3 text-sm text-primary-text">
           Enter Your Area Of Expertise
         </label>
-        
+
         {/* Search Input */}
         <div className="mb-4">
           <div className="relative">

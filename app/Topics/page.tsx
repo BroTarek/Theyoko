@@ -3,24 +3,38 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Plus, Users, LayoutGrid, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import data from "@/data.json"
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 
 const TopicsPage = () => {
-    const topicStats = useMemo(() => {
-        const stats: Record<string, { applicants: number; subtopics: number }> = {}
-        data.forEach((item: any) => {
-            const field = item.field || "Other"
-            if (!stats[field]) {
-                stats[field] = { applicants: 0, subtopics: Math.floor(Math.random() * 8) + 3 }
+    const [topics, setTopics] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await fetch('http://localhost:5000/api/topics')
+                const data = await res.json()
+                setTopics(data)
+            } catch (error) {
+                console.error("Failed to fetch data:", error)
+            } finally {
+                setLoading(false)
             }
-            stats[field].applicants++
-        })
-        return Object.entries(stats).map(([name, stat]) => ({
-            name,
-            ...stat
-        }))
+        }
+        fetchData()
     }, [])
+
+    const topicStats = useMemo(() => {
+        return topics.map(topic => ({
+            name: topic.name,
+            applicants: topic.applicants_count || 0,
+            subtopics: topic.companies_count || 0
+        }))
+    }, [topics])
+
+    if (loading) {
+        return <div className="p-10 text-center text-lg">Loading topics...</div>
+    }
 
     return (
         <div className="container mx-auto px-4 py-8 space-y-10">
@@ -39,7 +53,7 @@ const TopicsPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {topicStats.map((topic, i) => (
-                    <Link key={i} href={`/Topics/${topic.name}`} className="group outline-none">
+                    <Link key={i} href={`/Topics/${encodeURIComponent(topic.name)}`} className="group outline-none">
                         <Card className="h-full border border-gray-100/50 shadow-sm hover:shadow-2xl transition-all duration-500 bg-white/70 backdrop-blur-md group-hover:-translate-y-2 overflow-hidden relative rounded-3xl">
                             {/* Decorative element */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-[60px] -mr-12 -mt-12 transition-all duration-700 group-hover:scale-[2] group-hover:bg-primary/10" />

@@ -5,6 +5,10 @@ import { CountryPhoneSelect } from '@/components/forms/form-fields/country-phone
 import { FORM_FIELD_IDS } from '@/lib/constants';
 
 interface BasicInfoStepProps {
+    fullName: string;
+    setFullName: (value: string) => void;
+    email: string;
+    setEmail: (value: string) => void;
     referralSource: string;
     setReferralSource: (value: string) => void;
     countryCode: string;
@@ -14,6 +18,10 @@ interface BasicInfoStepProps {
 }
 
 export function BasicInfoStep({
+    fullName,
+    setFullName,
+    email,
+    setEmail,
     referralSource,
     setReferralSource,
     countryCode,
@@ -35,6 +43,8 @@ export function BasicInfoStep({
                     <input
                         id={FORM_FIELD_IDS.FULL_NAME}
                         type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
                         placeholder="Enter your full name"
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-primary-text 
               placeholder:text-gray-400 placeholder:text-sm
@@ -58,6 +68,8 @@ export function BasicInfoStep({
                     <input
                         id={FORM_FIELD_IDS.EMAIL}
                         type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter your email"
                         className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-primary-text 
               placeholder:text-gray-400 placeholder:text-sm
