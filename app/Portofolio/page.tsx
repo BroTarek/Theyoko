@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
   User, Mail, Phone, MapPin, Briefcase, Building,
@@ -38,18 +38,18 @@ const STATUS_CONFIG = {
     iconColor: "text-green-500 dark:text-green-400"
   },
   "In Process": {
-    color: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800",
+    color: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-gray-800",
     icon: IconLoader,
     iconColor: "text-yellow-600 dark:text-yellow-400"
   },
   Done: {
-    color: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800",
+    color: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-gray-800",
     icon: IconCircleCheckFilled,
     iconColor: "text-green-500 dark:text-green-400"
   }
 } as const
 
-export default function PortfolioPage() {
+function PortfolioContent() {
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
 
@@ -182,13 +182,7 @@ export default function PortfolioPage() {
   const handlePrint = () => {
     window.print()
   }
-  const item = {
-    header: "string",
-    id: 123,
-    status: "Unseen",
-    experience: "string"
 
-  }
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -226,8 +220,6 @@ export default function PortfolioPage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2 mt-4 md:mt-0 print:hidden">
-
-
               <Button onClick={handleDownloadCV}>
                 <Download className="w-4 h-4 mr-2" />
                 Download CV
@@ -253,8 +245,6 @@ export default function PortfolioPage() {
                 </div>
               </div>
               <div className="mt-4 md:mt-0">
-
-
                 <div className="flex flex-col gap-3">
                   <Label htmlFor="status">Status</Label>
                   <Select
@@ -604,5 +594,13 @@ export default function PortfolioPage() {
         </footer>
       </div>
     </div>
+  )
+}
+
+export default function PortfolioPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center">Loading portfolio...</div>}>
+      <PortfolioContent />
+    </Suspense>
   )
 }
